@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Private Environment & Secret Files (NEVER commit to Git)
+.env
+.env.*
+!.env.example
+
+# Server Backups, Logs & Temp Files
+server/backups/*.bak
+server/backups/*.json
+*.log
+npm-debug.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

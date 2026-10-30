@@ -1,0 +1,258 @@
+/* ==========================================================================
+   ORPA PORTFOLIO — MAIN STYLESHEET (css/style.css)
+   Exact Light & Dark Theme Palette from User's Reference HTML:
+   - Light Theme: Warm Minimal Alabaster (#f7f5f0), Soft Stone (#efece6),
+     Deep Espresso Charcoal (#171614), and Refined Warm Bronze-Umber (#8c6239)
+   - Dark Theme: Deep Obsidian (#0b0b0d) & Warm Minimal Champagne-Bronze (#d4b483)
+   ========================================================================== */
+
+:root,
+html[data-theme="dark"] {
+  --bg-primary: #0b0b0d;
+  --bg-secondary: #121216;
+  --bg-card: rgba(20, 20, 25, 0.88);
+  --bg-card-inner: rgba(12, 12, 15, 0.85);
+  --bg-header: rgba(11, 11, 13, 0.88);
+  --text-primary: #f4f3ef;
+  --text-secondary: #a6a49d;
+  --text-muted: #78766f;
+  --accent-primary: #d4b483;      /* Warm Minimal Champagne-Bronze */
+  --accent-secondary: #b89463;    /* Muted Sandstone Gold */
+  --accent-contrast: #0b0b0d;
+  --border-subtle: rgba(212, 180, 131, 0.18);
+  --border-hover: rgba(212, 180, 131, 0.45);
+  --lamp-intensity: 1;
+  --lamp-glow: rgba(212, 180, 131, 0.16);
+  --shadow-card: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+  --canvas-bg-top: #111115;
+  --canvas-bg-bottom: #09090c;
+}
+
+html[data-theme="light"] {
+  --bg-primary: #f7f5f0;          /* Warm Minimal Alabaster */
+  --bg-secondary: #efece6;        /* Soft Stone */
+  --bg-card: rgba(255, 255, 255, 0.94);
+  --bg-card-inner: #f4f1ea;
+  --bg-header: rgba(247, 245, 240, 0.92);
+  --text-primary: #171614;        /* Deep Espresso Charcoal */
+  --text-secondary: #52504a;
+  --text-muted: #78746c;
+  --accent-primary: #8c6239;      /* Refined Warm Bronze-Umber */
+  --accent-secondary: #6e4b26;
+  --accent-contrast: #ffffff;
+  --border-subtle: rgba(140, 98, 57, 0.20);
+  --border-hover: rgba(140, 98, 57, 0.50);
+  --lamp-intensity: 1;
+  --lamp-glow: rgba(212, 180, 131, 0.22);
+  --shadow-card: 0 14px 34px -10px rgba(23, 22, 20, 0.08);
+  --canvas-bg-top: #ebe6dc;
+  --canvas-bg-bottom: #dfd8ca;
+}
+
+body.lamp-off {
+  --lamp-intensity: 0.15;
+  --lamp-glow: rgba(212, 180, 131, 0.02);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.45s ease, color 0.35s ease;
+}
+
+/* Visible Keyboard Focus Indicator for Accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Active Navigation Link Highlight & Underline */
+.nav-link {
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--accent-primary);
+}
+
+.nav-link.active-nav-link {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.nav-link.active-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--accent-primary);
+}
+
+/* Ambient Lamp Illumination Aura centered near the Current Focus 3D Lamp */
+.ambient-lamp-aura {
+  background: radial-gradient(
+    circle at 74% 24%,
+    rgba(212, 180, 131, calc(0.16 * var(--lamp-intensity))),
+    rgba(184, 148, 99, calc(0.06 * var(--lamp-intensity))) 40%,
+    transparent 70%
+  );
+  transition: opacity 0.5s ease, background 0.5s ease;
+  pointer-events: none;
+}
+
+.portfolio-section {
+  transition: opacity 0.55s ease, filter 0.55s ease;
+}
+
+body.lamp-off .portfolio-section:not(.always-bright) {
+  opacity: 0.38;
+  filter: brightness(0.65) contrast(0.95);
+}
+
+body.lamp-on .portfolio-section {
+  opacity: 1;
+  filter: brightness(1);
+}
+
+.minimal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(14px);
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, background-color 0.35s ease;
+}
+
+.minimal-card:hover {
+  border-color: var(--border-hover);
+}
+
+.minimal-inner {
+  background: var(--bg-card-inner);
+  border: 1px solid var(--border-subtle);
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.accent-text {
+  color: var(--accent-primary);
+}
+
+.text-main {
+  color: var(--text-primary);
+}
+
+.text-sub {
+  color: var(--text-secondary);
+}
+
+.text-mute {
+  color: var(--text-muted);
+}
+
+.btn-primary-minimal {
+  background-color: var(--accent-primary);
+  color: var(--accent-contrast);
+  transition: all 0.2s ease;
+}
+
+.btn-primary-minimal:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-outline-minimal {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.btn-outline-minimal:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.canvas-stage-bg,
+.hero-arch-stage {
+  background: linear-gradient(180deg, var(--canvas-bg-top) 0%, var(--canvas-bg-bottom) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.current-focus-floating-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+/* Light-theme overrides for dynamic cards */
+html[data-theme="light"] .theme-surface {
+  background-color: var(--bg-card-inner) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+html[data-theme="light"] .theme-heading {
+  color: #171614 !important;
+}
+
+html[data-theme="light"] .theme-body {
+  color: #45433e !important;
+}
+
+html[data-theme="light"] .theme-badge {
+  background-color: rgba(140, 98, 57, 0.1) !important;
+  color: #6e4b26 !important;
+  border-color: rgba(140, 98, 57, 0.28) !important;
+}
+
+/* Floating Tik-Tik Animation Badges */
+@keyframes tiktikPulse {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.9; }
+  50% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+}
+
+.tiktik-badge {
+  animation: tiktikPulse 1s steps(2, end) infinite;
+}
+
+.tiktik-badge-delayed {
+  animation: tiktikPulse 1s steps(2, end) 0.5s infinite;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Admin-only controls hidden unless body has .admin-authenticated */
+.admin-only {
+  display: none !important;
+}
+
+body.admin-authenticated .admin-only {
+  display: inline-flex !important;
+}
+
+body.admin-authenticated .admin-only-block {
+  display: block !important;
+}
+
+.admin-only-block {
+  display: none !important;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }

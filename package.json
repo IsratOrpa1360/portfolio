@@ -1,0 +1,16 @@
+{
+  "name": "orpa-mvc-portfolio",
+  "version": "2.0.0",
+  "description": "Personal MVC Web Portfolio & Secure Admin Dashboard for Isratul Ibnat Orpa (CSE, AIUB)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "hash-password": "node server/scripts/hash-password.js",
+    "test:security": "node server/scripts/test-security.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}

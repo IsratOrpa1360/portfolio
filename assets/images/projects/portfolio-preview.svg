@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" fill="none">
+  <rect width="600" height="340" rx="24" fill="#F4F1EA"/>
+  <circle cx="460" cy="170" r="95" fill="#EBE6DC"/>
+  <rect x="48" y="64" width="180" height="16" rx="8" fill="#8C6239" fill-opacity="0.35"/>
+  <rect x="48" y="96" width="260" height="28" rx="8" fill="#171614"/>
+  <rect x="48" y="136" width="220" height="28" rx="8" fill="#8C6239"/>
+  <rect x="48" y="184" width="240" height="12" rx="6" fill="#52504A" fill-opacity="0.4"/>
+  <rect x="48" y="206" width="200" height="12" rx="6" fill="#52504A" fill-opacity="0.4"/>
+  <rect x="48" y="244" width="120" height="36" rx="18" fill="#8C6239"/>
+  <circle cx="460" cy="120" r="24" fill="#FBBF24"/>
+  <path d="M440 235C440 205 480 205 480 235" stroke="#171614" stroke-width="8" stroke-linecap="round"/>
+  <text x="300" y="315" text-anchor="middle" fill="#52504A" font-family="sans-serif" font-size="13">Replace in assets/projects/ or via js/data.js</text>
+</svg>

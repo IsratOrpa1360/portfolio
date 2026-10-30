@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Personal portfolio of Isratul Ibnat Orpa — Computer Science and Engineering undergraduate at American International University-Bangladesh (AIUB), exploring mathematics, deep learning research, and web development." />
+  <title>Orpa | CSE Portfolio — Isratul Ibnat Orpa</title>
+  <!-- Early Theme Initialization to Prevent Theme Flash (FOUC) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('orpa_theme_pref_v1');
+        var theme = (saved === 'dark' || saved === 'light')
+          ? saved
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#0b0b0d',
+              900: '#121215',
+              800: '#19191e',
+              700: '#24242b',
+            },
+            amberGold: {
+              300: '#e6cfa7',
+              400: '#d4b483',
+              500: '#c19a6b',
+              600: '#a37c4d',
+              700: '#856037',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="lamp-on min-h-screen relative selection:bg-[#d4b483] selection:text-black">
+
+  <!-- Ambient Lamp Illumination Layer -->
+  <div id="ambientAura" class="ambient-lamp-aura fixed inset-0 z-0"></div>
+
+  <!-- =====================================================================
+       AUTHENTICATED ADMIN STATUS BAR (Visible ONLY after Admin Login)
+  ====================================================================== -->
+  <div id="adminCommandBar" class="admin-only-block sticky top-0 z-50 bg-[#1c1915] text-[#f4f3ef] border-b border-[#d4b483]/40 px-4 py-2 text-xs font-mono">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span id="adminSessionModeBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+          AUTHENTICATED ADMIN SESSION
+        </span>
+        <span class="text-[#d4b483]">Manage all portfolio sections or publish updates.</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="openAdminDashboardBtn" type="button" class="px-3 py-1 rounded bg-[#d4b483] text-black font-semibold hover:brightness-110 transition">
+          Open Admin Dashboard
+        </button>
+        <button id="adminLogoutBtn" type="button" class="px-3 py-1 rounded bg-red-500/20 border border-red-400/40 text-red-200 hover:bg-red-500/30 font-semibold transition">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       STICKY HEADER & DYNAMIC NAVIGATION (Exact 9-Section Order from data.js:
+       About, Education, Experience, Projects, Research, Skills, Achievements,
+       Resume, Contact — NO Certificate option in navbar)
+  ====================================================================== -->
+  <header style="background: var(--bg-header); border-color: var(--border-subtle);" class="sticky top-0 z-40 backdrop-blur-md border-b transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
+      <!-- Left: Minimal "Orpa." Brand from Reference File -->
+      <a href="#about" class="text-2xl font-bold tracking-tight text-main flex items-baseline gap-0.5 shrink-0" aria-label="Isratul Ibnat Orpa Portfolio Home">
+        <span id="brandLogoText">Orpa</span><span class="accent-text">.</span>
+      </a>
+
+      <!-- Desktop Primary Navigation (Populated from js/data.js) -->
+      <nav id="desktopPrimaryNav" aria-label="Primary Navigation" class="hidden xl:flex items-center gap-3 text-sm font-medium text-sub">
+        <!-- Populated by js/script.js -->
+      </nav>
+
+      <!-- Right Utility Controls: Theme Toggle (Sole Permitted Emoji Exception) & Lamp Switch -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="themeToggleBtn" type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] text-xs font-mono text-main hover:border-[var(--accent-primary)] flex items-center gap-1.5 transition" aria-label="Toggle dark and light theme">
+          <span id="themeIcon" aria-hidden="true">🌙</span>
+          <span id="themeLabel" class="hidden sm:inline">Dark</span>
+        </button>
+
+        <button id="headerPullLampBtn" type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] text-xs font-mono accent-text hover:border-[var(--accent-primary)] flex items-center gap-1.5 transition" title="Pull the 3D Lamp Cord in Current Focus">
+          <span id="headerLampDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="headerLampLabel">Lamp: ON</span>
+        </button>
+
+        <button id="mobileMenuBtn" type="button" class="xl:hidden p-2 rounded-lg border border-[var(--border-subtle)] text-main" aria-label="Toggle navigation menu">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileMenu" style="background: var(--bg-secondary); border-color: var(--border-subtle);" class="hidden xl:hidden border-b px-4 py-3">
+      <nav id="mobilePrimaryNav" aria-label="Mobile Navigation" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <!-- Populated by js/script.js -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       MAIN CONTENT (Exact 9-Section Order Matching Navigation)
+       1. About  2. Education  3. Experience  4. Projects  5. Research
+       6. Skills 7. Achievements  8. Resume  9. Contact
+  ====================================================================== -->
+  <main id="portfolioMainContainer" class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 space-y-24">
+
+    <!-- =====================================================================
+         SECTION 1: ABOUT (Hero Introduction, Current Focus 3D Lamp & Bio)
+    ====================================================================== -->
+    <section id="about" class="portfolio-section always-bright scroll-mt-24 space-y-14">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <!-- Left Column (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="flex items-center justify-between gap-2">
+            <span id="heroEyebrowText" class="font-mono text-xs uppercase tracking-[0.22em] font-semibold accent-text">
+              CSE STUDENT · AIUB
+            </span>
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.1] text-main">
+            <span id="heroGreetingPrefix">Hi, I'm</span>
+            <span id="heroHighlightName" class="accent-text">Orpa.</span><br />
+            <span id="heroMainHeadline">I build, learn and explore.</span>
+          </h1>
+
+          <p id="heroIntroParagraph" class="text-base sm:text-lg text-sub leading-relaxed max-w-2xl"></p>
+
+          <blockquote id="heroBrandQuote" class="border-l-2 border-[var(--accent-primary)] pl-4 py-1 text-sm italic text-sub"></blockquote>
+
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            <a href="#projects" class="btn-primary-minimal px-6 py-3.5 rounded-xl font-semibold text-sm shadow-sm inline-flex items-center gap-2">
+              <span>Explore My Work</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="#resume" class="btn-outline-minimal px-6 py-3.5 rounded-xl font-semibold text-sm">
+              View Resume
+            </a>
+            <a href="#contact" class="btn-outline-minimal px-6 py-3.5 rounded-xl font-semibold text-sm">
+              Contact Me
+            </a>
+            <button id="heroPullCordBtn" type="button" class="px-4 py-3.5 rounded-xl minimal-inner text-xs font-mono accent-text hover:border-[var(--accent-primary)] transition inline-flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Pull Lamp Chain</span>
+            </button>
+          </div>
+
+          <!-- Social Links Row -->
+          <div id="heroSocialLinksContainer" class="flex flex-wrap items-center gap-4 pt-1"></div>
+        </div>
+
+        <!-- Right Column (5 Cols): "CURRENT FOCUS" Card with 3D Thinking Girl & Lamp -->
+        <div class="lg:col-span-5">
+          <div class="minimal-card rounded-[28px] p-6 sm:p-7 space-y-5 relative overflow-hidden">
+            <!-- Top Row inside Current Focus Card: "O." Monogram Badge + Power Status -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="w-12 h-12 rounded-2xl minimal-inner flex items-center justify-center font-bold text-xl accent-text shadow-inner">
+                O.
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="tiktikLiveReadout" class="px-2.5 py-1 rounded-full minimal-inner font-mono text-[11px] accent-text">
+                  tik-tik: active
+                </span>
+                <span id="heroPowerBadge" class="px-2.5 py-1 rounded-full text-[11px] font-mono bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                  RUNNING · LIT
+                </span>
+              </div>
+            </div>
+
+            <!-- 3D Thinking Girl ("tik-tik" beside head) & Hanging Lamp in Current Focus -->
+            <div id="threeCanvasWrapper" class="canvas-stage-bg relative w-full h-[290px] sm:h-[310px] rounded-2xl overflow-hidden cursor-pointer select-none" title="Click the lamp or pull-cord to toggle illumination">
+              <canvas id="aboutThreeCanvas" class="w-full h-full block"></canvas>
+
+              <div id="tiktikOverlayContainer" class="pointer-events-none absolute inset-0 overflow-hidden">
+                <div class="tiktik-badge absolute top-[14%] left-[6%] px-2.5 py-1 rounded-lg bg-black/75 border border-[#d4b483]/45 text-[#e6cfa7] font-mono text-[11px] flex items-center gap-1.5 shadow">
+                  <span id="tiktikWordLeft" class="font-semibold">tik... tik...</span>
+                </div>
+
+                <div class="tiktik-badge-delayed absolute top-[10%] right-[6%] px-2.5 py-1 rounded-lg bg-black/75 border border-[#d4b483]/45 text-[#f4f3ef] font-mono text-[11px] flex items-center gap-1.5 shadow">
+                  <span id="thoughtFormulaText">∫ f(x)dx · CNN · Logic</span>
+                </div>
+
+                <div class="tiktik-badge absolute bottom-[14%] left-[6%] px-2 py-0.5 rounded bg-black/65 border border-[#d4b483]/30 text-[10px] font-mono text-[#d4b483]">
+                  <span id="tiktikCounterText">Pulse #01</span>
+                </div>
+              </div>
+
+              <div id="lampOffBanner" class="hidden absolute inset-0 bg-black/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-5 text-center z-30">
+                <div class="max-w-xs bg-[#141418] border border-[#d4b483]/50 rounded-2xl p-4 shadow-2xl space-y-2.5">
+                  <h3 class="font-serif font-bold text-base text-[#e6cfa7]">Lamp in Standby Mode</h3>
+                  <p class="text-xs text-gray-300">
+                    Pull the lamp cord so her hand switches the lamp ON and runs the webpage!
+                  </p>
+                  <button id="overlayPullLampBtn" type="button" class="w-full py-2 px-3 rounded-xl bg-[#d4b483] text-black font-bold text-xs hover:brightness-110 transition">
+                    Pull Lamp Cord
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Lamp Controls inside Current Focus Card -->
+            <div class="flex items-center justify-between gap-2 pt-1">
+              <button id="aboutPullLampBtn" type="button" class="btn-primary-minimal flex-1 py-2.5 px-3.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                <span id="aboutPullBtnText">Pull Lamp Cord</span>
+              </button>
+              <button id="boostThoughtBtn" type="button" class="px-3 py-2.5 rounded-xl minimal-inner text-xs font-mono accent-text hover:border-[var(--accent-primary)] transition">
+                Spark Idea
+              </button>
+              <button id="resetCameraBtn" type="button" class="px-3 py-2.5 rounded-xl minimal-inner text-xs font-mono text-sub hover:text-main transition">
+                Reset View
+              </button>
+            </div>
+
+            <!-- Exact "CURRENT FOCUS" Text Details -->
+            <div class="pt-3 border-t border-[var(--border-subtle)] space-y-2">
+              <div id="focusLabelText" class="font-mono text-[11px] uppercase tracking-[0.18em] font-semibold accent-text">
+                CURRENT FOCUS
+              </div>
+              <h2 id="focusHeadingText" class="text-xl sm:text-2xl font-bold text-main">
+                Learning by building
+              </h2>
+              <p id="focusSubtitleText" class="text-sm text-sub leading-relaxed">
+                Web development · Research · Problem solving
+              </p>
+              <div class="pt-1 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 text-sub">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+                  <span id="focusStatusText">Open to internship opportunities</span>
+                </div>
+                <span id="sceneNarrativeStatus" class="font-mono text-[10px] text-mute">Lamp Lit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Narrative & Core Qualities -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
+        <div class="lg:col-span-6 minimal-card rounded-3xl p-6 sm:p-8 space-y-5">
+          <div class="flex items-center gap-4">
+            <img id="aboutProfileImage" src="assets/images/profile.jpg" alt="Isratul Ibnat Orpa profile portrait" loading="lazy" class="w-16 h-16 rounded-2xl object-cover border border-[var(--border-subtle)] shrink-0" />
+            <div>
+              <span class="font-mono text-[11px] uppercase accent-text block">01 / About Me</span>
+              <h2 id="infoFullName" class="text-xl sm:text-2xl font-bold text-main">Isratul Ibnat Orpa</h2>
+              <p id="infoAcademicStatus" class="text-xs text-sub">Undergraduate student, 10th semester as of October 2026</p>
+            </div>
+          </div>
+          <div id="aboutParagraphsContainer" class="space-y-3.5 text-sm sm:text-base text-sub leading-relaxed"></div>
+        </div>
+
+        <div class="lg:col-span-6 minimal-card rounded-3xl p-6 sm:p-8 space-y-4">
+          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+            <h3 class="text-lg font-bold text-main">Core Personal Qualities</h3>
+            <span class="font-mono text-xs accent-text">Portfolio Values</span>
+          </div>
+          <div id="qualitiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 2: EDUCATION
+    ====================================================================== -->
+    <section id="education" class="portfolio-section scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">02 / Education</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-main">
+            Academic Timeline & Quantitative Strengths
+          </h2>
+        </div>
+
+        <button id="toggleVerificationModeBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-mono minimal-inner accent-text hover:border-[var(--accent-primary)] transition self-start md:self-auto">
+          <span id="verificationModeLabel">Show Reported (Oct 2025)</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div id="educationListContainer" class="lg:col-span-7 space-y-4"></div>
+
+        <div class="lg:col-span-5 minimal-card rounded-3xl p-6 sm:p-7 space-y-5 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+              <h3 class="text-lg font-bold text-main">Academic Background & Strengths</h3>
+              <span class="font-mono text-xs accent-text">CSE & Math</span>
+            </div>
+
+            <ul class="space-y-3 text-sm text-sub">
+              <li class="flex items-start gap-2.5">
+                <span class="accent-text font-bold">✓</span>
+                <span><strong class="text-main">Data Structures Completed:</strong> Solid foundation in data organization and algorithmic problem-solving.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="accent-text font-bold">✓</span>
+                <span><strong class="text-main">Six University Mathematics Courses:</strong> Completed six mathematics courses with strong quantitative performance.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="accent-text font-bold">✓</span>
+                <span><strong class="text-main">Digital Logic & Embedded Systems:</strong> Hands-on academic project experience in sequential logic and microcontrollers.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-2xl minimal-inner space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs uppercase accent-text">Transcript Metrics Status</span>
+              <span id="metricStatusPill" class="px-2 py-0.5 rounded text-[10px] font-mono minimal-card accent-text">
+                PENDING CONFIRMATION
+              </span>
+            </div>
+
+            <div id="metricsUnverifiedView" class="space-y-2 text-xs text-sub">
+              <p class="leading-relaxed">
+                My current 10th-semester CGPA and detailed mathematics course marks are held for confirmation prior to public release.
+              </p>
+            </div>
+
+            <div id="metricsConfirmedView" class="hidden space-y-2.5 text-xs">
+              <div class="p-3 rounded-xl minimal-card">
+                <span class="text-mute block text-[11px]">Reported CGPA Record:</span>
+                <span id="cgpaValueText" class="text-sm font-bold font-mono accent-text">3.72</span>
+              </div>
+              <div class="p-3 rounded-xl minimal-card">
+                <span class="text-mute block text-[11px]">Mathematics Coursework Record:</span>
+                <span id="mathMarksValueText" class="text-xs font-mono text-main">4x (95+) & 2x (87)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: EXPERIENCE
+    ====================================================================== -->
+    <section id="experience" class="portfolio-section scroll-mt-24">
+      <div class="mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">03 / Experience & Career Goals</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-main">
+          Professional Readiness & Career Objectives
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-5 minimal-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <span class="px-3 py-1 rounded-full text-xs font-mono minimal-inner accent-text">
+              Current Professional Status
+            </span>
+            <h3 class="text-xl font-bold text-main">
+              Preparing for Industry Internships
+            </h3>
+            <blockquote id="experienceStatementText" class="p-4 rounded-2xl minimal-inner border-l-4 border-l-[var(--accent-primary)] text-sm text-main italic leading-relaxed"></blockquote>
+            <div id="experienceItemsList" class="space-y-3 pt-2"></div>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
+            <span class="text-mute font-mono">Career Track:</span>
+            <span class="accent-text font-semibold">Technology Industry & Research</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 minimal-card rounded-3xl p-6 sm:p-8 space-y-5">
+          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+            <h3 class="text-xl font-bold text-main">Career Objectives</h3>
+            <span class="font-mono text-xs accent-text">Goals</span>
+          </div>
+          <div id="objectivesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: PROJECTS
+    ====================================================================== -->
+    <section id="projects" class="portfolio-section scroll-mt-24">
+      <div class="mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">04 / Technical Projects</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-main">
+          Hardware, Digital Logic & Web Builds
+        </h2>
+      </div>
+
+      <div id="projectsGridContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 5: RESEARCH
+    ====================================================================== -->
+    <section id="research" class="portfolio-section scroll-mt-24">
+      <div class="mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">05 / Academic Research</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-main">
+          Image-Based Machine Learning & Deep Learning
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div id="researchTopicsContainer" class="lg:col-span-8 space-y-6"></div>
+
+        <div class="lg:col-span-4 minimal-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-main">Broader Research Interests</h3>
+            <div id="researchDomainsList" class="space-y-2.5"></div>
+          </div>
+          <div class="p-4 rounded-2xl minimal-inner text-xs text-sub">
+            <strong class="accent-text block mb-1">Methodology Focus:</strong>
+            <span>Exploring dataset analysis, computer vision preprocessing, and responsible model evaluation.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 6: SKILLS
+    ====================================================================== -->
+    <section id="skills" class="portfolio-section scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">06 / Skills & Learning Areas</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-main">
+            Academic Strengths & Technical Learning
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-skill-filter="All" class="skill-filter-btn btn-primary-minimal px-4 py-1.5 rounded-full text-xs font-mono font-semibold">
+            All Areas
+          </button>
+          <button type="button" data-skill-filter="Academic & Analytical" class="skill-filter-btn btn-outline-minimal px-4 py-1.5 rounded-full text-xs font-mono">
+            Academic & Analytical
+          </button>
+          <button type="button" data-skill-filter="Technical Learning Areas" class="skill-filter-btn btn-outline-minimal px-4 py-1.5 rounded-full text-xs font-mono">
+            Technical Learning Areas
+          </button>
+        </div>
+      </div>
+
+      <div id="skillsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 7: ACHIEVEMENTS
+    ====================================================================== -->
+    <section id="achievements" class="portfolio-section scroll-mt-24 space-y-12">
+      <div>
+        <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">07 / Achievements</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-main">
+          Coding Milestones & Extracurricular Recognition
+        </h2>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-main">Coding & Extracurricular Achievements</h3>
+        <div id="achievementsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-main">Training & Coursework Credentials</h3>
+        <div id="certificatesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 8: DEDICATED RESUME SECTION
+    ====================================================================== -->
+    <section id="resume" class="portfolio-section scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">08 / Resume</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-main">
+            Curriculum Vitae & Academic Resume
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a id="resumeDownloadBtn" href="resume.pdf" download="Isratul_Ibnat_Orpa_Resume.pdf" class="btn-primary-minimal px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold inline-flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download Resume</span>
+          </a>
+          <a id="resumeNewTabLink" href="resume.pdf" target="_blank" rel="noopener noreferrer" class="btn-outline-minimal px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold inline-flex items-center gap-2">
+            <span>Open PDF in New Tab</span>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="minimal-card rounded-3xl p-4 sm:p-6 space-y-4">
+        <div class="w-full h-[520px] sm:h-[680px] rounded-2xl overflow-hidden minimal-inner">
+          <iframe id="resumePdfIframe" src="resume.pdf" title="Isratul Ibnat Orpa Resume PDF Viewer" class="w-full h-full border-0"></iframe>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-sub px-1">
+          <span id="resumePathNoteText">Place your updated PDF at my-portfolio/resume.pdf (configured in js/data.js).</span>
+          <span>If your browser does not render inline PDFs, use "Download Resume" or "Open PDF in New Tab" above.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 9: CONTACT (Concise & Professional — NO CV option here!)
+    ====================================================================== -->
+    <section id="contact" class="portfolio-section scroll-mt-24">
+      <div class="mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest accent-text block mb-1">09 / Contact</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-main">
+          Get in Touch
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Verified Contact Info (6 Cols) -->
+        <div class="lg:col-span-6 minimal-card rounded-3xl p-6 sm:p-8 space-y-4">
+          <h3 class="text-xl font-bold text-main">
+            Direct Academic & Professional Channels
+          </h3>
+          <p class="text-sm text-sub leading-relaxed">
+            Available for technology internship opportunities, academic project discussions, and undergraduate research collaboration.
+          </p>
+
+          <!-- University Email -->
+          <div class="p-4 rounded-2xl minimal-inner flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="accent-text shrink-0">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              </span>
+              <div class="min-w-0">
+                <span class="font-mono text-[11px] uppercase text-mute block">University Email (AIUB)</span>
+                <a id="contactEmailLink" href="mailto:23-54405-3@student.aiub.edu" class="text-sm sm:text-base font-mono font-semibold text-main hover:underline truncate block">
+                  23-54405-3@student.aiub.edu
+                </a>
+              </div>
+            </div>
+            <button id="copyEmailBtn" type="button" class="btn-primary-minimal px-4 py-2 rounded-xl font-mono text-xs font-semibold shrink-0 inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy Email</span>
+            </button>
+          </div>
+
+          <!-- Location -->
+          <div class="p-4 rounded-2xl minimal-inner flex items-center gap-3">
+            <span class="accent-text shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <div>
+              <span class="font-mono text-[11px] uppercase text-mute block">Location</span>
+              <span id="contactLocationText" class="text-sm font-medium text-main">Dhaka, Bangladesh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Social Profiles (6 Cols) -->
+        <div class="lg:col-span-6 minimal-card rounded-3xl p-6 sm:p-8 space-y-4">
+          <h3 class="text-xl font-bold text-main">
+            Online Profiles
+          </h3>
+          <p class="text-sm text-sub">
+            Verified public repositories and professional network profiles configured in <code class="font-mono accent-text">js/data.js</code>.
+          </p>
+          <div id="contactSocialLinksList" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       FOOTER WITH DISCREET ADMIN ENTRY POINT
+  ====================================================================== -->
+  <footer style="border-color: var(--border-subtle); background: var(--bg-secondary);" class="relative z-10 border-t py-8 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-sub">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-main">Orpa<span class="accent-text">.</span></span>
+        <span>Isratul Ibnat Orpa · Computer Science & Engineering, AIUB</span>
+      </div>
+      <div class="flex items-center gap-4 font-mono text-[11px] text-mute">
+        <span>Dhaka, Bangladesh</span>
+        <span>·</span>
+        <button id="discreetAdminLoginBtn" type="button" class="hover:text-[var(--accent-primary)] transition underline-offset-2 hover:underline">
+          Admin
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       MODAL 1: PASSWORD-ONLY ADMIN LOGIN (Server-Verified via /api/auth/login)
+  ====================================================================== -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="adminLoginModalTitle">
+    <div class="minimal-card rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl">
+      <div class="flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
+        <div>
+          <span class="font-mono text-[11px] uppercase accent-text">Administrator Authentication</span>
+          <h2 id="adminLoginModalTitle" class="text-xl font-bold text-main">Admin Login</h2>
+        </div>
+        <button id="closeAdminLoginBtn" type="button" class="p-1.5 rounded-lg minimal-inner text-sub hover:text-main text-xs font-mono" aria-label="Close login modal">
+          ✕
+        </button>
+      </div>
+
+      <p class="text-xs text-sub leading-relaxed">
+        Enter your administrator password. Credentials are verified on the server against <code class="font-mono accent-text">ADMIN_PASSWORD_HASH</code> in your private <code class="font-mono accent-text">.env</code> configuration.
+      </p>
+
+      <form id="adminLoginForm" class="space-y-4">
+        <div>
+          <label for="adminPasswordInput" class="block text-xs font-mono text-sub mb-1.5">Admin Password</label>
+          <div class="relative flex items-center">
+            <input id="adminPasswordInput" type="password" autocomplete="current-password" required placeholder="Enter password" class="w-full pl-3.5 pr-16 py-2.5 rounded-xl minimal-inner text-sm text-main" />
+            <button id="togglePasswordVisibilityBtn" type="button" class="absolute right-2.5 px-2.5 py-1 rounded-lg minimal-card text-[11px] font-mono text-sub hover:text-main" aria-label="Show password">
+              Show
+            </button>
+          </div>
+        </div>
+
+        <div id="adminLoginError" class="hidden p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-500 text-xs font-mono"></div>
+
+        <!-- Honest Static-Preview Notice (Shown ONLY if /api/auth/login is unreachable in static preview) -->
+        <div id="adminLocalPreviewFallbackBox" class="hidden p-3.5 rounded-2xl minimal-inner space-y-2 text-xs">
+          <div class="font-mono font-semibold accent-text">Static Preview Environment Detected</div>
+          <p class="text-sub leading-relaxed">
+            Real password verification requires running the Node.js backend (<code class="font-mono">npm start</code>). To inspect and test the Admin Dashboard UI right now in static preview mode, you can open Local Draft Preview below.
+          </p>
+          <button id="enableLocalDraftPreviewBtn" type="button" class="btn-outline-minimal w-full py-2 rounded-xl font-mono text-xs font-semibold">
+            Open Admin Dashboard in Local Draft Preview Mode
+          </button>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="cancelAdminLoginBtn" class="btn-outline-minimal px-4 py-2 rounded-xl text-xs font-mono">
+            Cancel
+          </button>
+          <button id="adminLoginSubmitBtn" type="submit" class="btn-primary-minimal px-5 py-2 rounded-xl text-xs font-mono font-bold">
+            Sign In
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 2: FULL ADMIN DASHBOARD
+  ====================================================================== -->
+  <div id="adminDashboardModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="adminDashboardTitle">
+    <div class="minimal-card rounded-3xl max-w-5xl w-full p-5 sm:p-8 space-y-5 shadow-2xl my-auto max-h-[92vh] flex flex-col">
+      <div class="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-4 shrink-0">
+        <div>
+          <span class="font-mono text-xs uppercase accent-text">Portfolio Content Manager</span>
+          <h2 id="adminDashboardTitle" class="text-2xl font-bold text-main">Admin Dashboard</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="adminSaveChangesBtn" type="button" class="btn-primary-minimal px-4 py-2 rounded-xl text-xs font-mono font-bold">
+            Save Changes
+          </button>
+          <button id="adminDownloadDataJsBtn" type="button" class="btn-outline-minimal px-3.5 py-2 rounded-xl text-xs font-mono">
+            Download js/data.js
+          </button>
+          <button id="adminCancelChangesBtn" type="button" class="btn-outline-minimal px-3.5 py-2 rounded-xl text-xs font-mono">
+            Cancel Unsaved
+          </button>
+          <button id="closeAdminDashboardBtn" type="button" class="px-3 py-2 rounded-xl minimal-inner text-xs font-mono text-sub hover:text-main">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="adminSaveStatusBanner" class="hidden shrink-0"></div>
+
+      <!-- Section Tabs -->
+      <div class="flex flex-wrap gap-1.5 border-b border-[var(--border-subtle)] pb-3 shrink-0">
+        <button type="button" data-admin-tab="personal" class="admin-tab-btn btn-primary-minimal px-3 py-1.5 rounded-full text-xs font-mono font-semibold">Personal & About</button>
+        <button type="button" data-admin-tab="education" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Education</button>
+        <button type="button" data-admin-tab="experience" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Experience</button>
+        <button type="button" data-admin-tab="projects" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Projects</button>
+        <button type="button" data-admin-tab="research" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Research</button>
+        <button type="button" data-admin-tab="skills" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Skills</button>
+        <button type="button" data-admin-tab="certifications" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Certifications</button>
+        <button type="button" data-admin-tab="achievements" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Achievements</button>
+        <button type="button" data-admin-tab="contact" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Contact & Social</button>
+        <button type="button" data-admin-tab="resume" class="admin-tab-btn px-3 py-1.5 rounded-full text-xs font-mono minimal-inner text-sub">Resume & Nav</button>
+      </div>
+
+      <!-- Dynamic Editor Body -->
+      <div id="adminDashboardContent" class="overflow-y-auto pr-1 space-y-4 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 3: DELETE CONFIRMATION DIALOG
+  ====================================================================== -->
+  <div id="adminDeleteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div class="minimal-card rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-main">Confirm Deletion</h3>
+      <p id="adminDeleteConfirmText" class="text-xs text-sub leading-relaxed"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancelDeleteEntryBtn" type="button" class="btn-outline-minimal px-4 py-2 rounded-xl text-xs font-mono">
+          Cancel
+        </button>
+        <button id="confirmDeleteEntryBtn" type="button" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-mono font-bold">
+          Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBanner" class="fixed bottom-5 right-5 z-50 hidden px-4 py-3 rounded-2xl minimal-card text-main text-xs font-mono shadow-2xl flex items-center gap-2" role="status" aria-live="polite">
+    <span id="toastText">Updated</span>
+  </div>
+
+  <!-- Modular MVC Frontend Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/three-scene.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

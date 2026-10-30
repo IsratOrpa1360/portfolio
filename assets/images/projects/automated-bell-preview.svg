@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" fill="none">
+  <rect width="600" height="340" rx="24" fill="#F4F1EA"/>
+  <path d="M70 170 H130 V110 H190 V170 H250 V110 H310 V170 H370" stroke="#8C6239" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="380" y="95" width="145" height="130" rx="20" fill="#FFFFFF" stroke="#D4B483" stroke-width="3"/>
+  <circle cx="452" cy="150" r="32" fill="#F7F5F0" stroke="#8C6239" stroke-width="3"/>
+  <text x="452" y="156" text-anchor="middle" fill="#171614" font-family="monospace" font-weight="bold" font-size="16">0100</text>
+  <text x="300" y="315" text-anchor="middle" fill="#52504A" font-family="sans-serif" font-size="13">Automated Bell System — Add photo in assets/projects/</text>
+</svg>
