@@ -256,3 +256,118 @@ body.admin-authenticated .admin-only-block {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+
+/* ── Book Page Overlay ─────────────────────────────────────────── */
+#bookPageOverlay {
+  transition: opacity 0.65s ease;
+}
+
+.book-open-card {
+  background: linear-gradient(145deg, #f6f0e2 0%, #ede5d0 55%, #e8dfc8 100%);
+  border: 1px solid rgba(212, 180, 131, 0.55);
+  border-radius: 10px 14px 14px 10px;
+  box-shadow:
+    inset -6px 0 14px -6px rgba(0,0,0,0.18),
+    inset 3px 0 8px -4px rgba(0,0,0,0.08),
+    0 8px 28px -6px rgba(0,0,0,0.5);
+  padding: 14px 16px 12px 14px;
+  max-width: 92%;
+  width: 100%;
+  position: relative;
+}
+
+/* Left-edge spine shadow to simulate open book binding */
+.book-open-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 10px;
+  border-radius: 4px 0 0 4px;
+  background: linear-gradient(to right, rgba(0,0,0,0.22), transparent);
+  pointer-events: none;
+}
+
+/* Faint ruled lines */
+.book-open-card::after {
+  content: '';
+  position: absolute;
+  inset: 14px 14px 14px 20px;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 20px,
+    rgba(180, 155, 105, 0.22) 20px,
+    rgba(180, 155, 105, 0.22) 21px
+  );
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.book-card-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #8c6239;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.book-card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1c1815;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.book-card-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #8c6239;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.book-card-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #3a342a;
+  line-height: 1.65;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.book-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  position: relative;
+  z-index: 1;
+}
+
+.book-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: rgba(140, 98, 57, 0.14);
+  color: #6e4b26;
+  border: 1px solid rgba(140, 98, 57, 0.28);
+}
+
+/* Light theme adjustments for book overlay */
+html[data-theme="light"] .book-open-card {
+  background: linear-gradient(145deg, #faf6ee 0%, #f2ead8 55%, #ede4cc 100%);
+  box-shadow:
+    inset -6px 0 14px -6px rgba(0,0,0,0.10),
+    inset 3px 0 8px -4px rgba(0,0,0,0.05),
+    0 8px 24px -6px rgba(0,0,0,0.18);
+}

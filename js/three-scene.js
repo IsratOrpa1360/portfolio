@@ -1,7 +1,7 @@
 /**
- * js/three-scene.js — 3D Thinking Girl ("tik-tik") & Hanging Lamp in Current Focus
- * Uses the exact Minimalist Champagne-Bronze, Warm Stone & Graphite materials
- * from the user's reference file (`1557feec.html`).
+ * js/three-scene.js — Interactive 3D Book + Table Lamp
+ * Replaces the previous "tik-tik" thinking girl and hanging lamp.
+ * Keeps the exact same OrpaLampController interface so script.js works unchanged.
  */
 
 (function () {
@@ -9,340 +9,328 @@
 
   window.OrpaLampController = {
     lampIsOn: true,
-    cordPullVelocity: 0,
-    cordExtension: 0,
-    thoughtSparkBoost: 0,
-    tickCounter: 1,
+    bookOpenAmount: 0,
+    targetBookOpen: 0,
+    bookAnimating: false,
     updateThemeColors: null,
     triggerPull: null,
     boostThought: null
   };
 
-  const THOUGHT_FORMULAS = [
-    '∫ f(x)dx · CNN · Logic',
-    'tik-tik · Eigenvalues',
-    'Scalp Image → DL Stage',
-    '4x4 Keypad · Counter',
-    'Data Structures · Graphs'
-  ];
-
   function updateLampDOMState() {
     const isLit = window.OrpaLampController.lampIsOn;
     const body = document.body;
-    const headerLabel = document.getElementById('headerLampLabel');
-    const headerDot = document.getElementById('headerLampDot');
-    const heroBadge = document.getElementById('heroPowerBadge');
-    const aboutPullText = document.getElementById('aboutPullBtnText');
+    const headerLabel  = document.getElementById('headerLampLabel');
+    const headerDot    = document.getElementById('headerLampDot');
+    const heroBadge    = document.getElementById('heroPowerBadge');
+    const pullText     = document.getElementById('aboutPullBtnText');
     const lampOffBanner = document.getElementById('lampOffBanner');
-    const narrativeStatus = document.getElementById('sceneNarrativeStatus');
-    const tiktikReadout = document.getElementById('tiktikLiveReadout');
+    const narrative    = document.getElementById('sceneNarrativeStatus');
+    const readout      = document.getElementById('tiktikLiveReadout');
 
     if (isLit) {
       body.classList.remove('lamp-off');
       body.classList.add('lamp-on');
-      if (headerLabel) headerLabel.textContent = 'Lamp: ON';
-      if (headerDot) headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-      if (heroBadge) heroBadge.textContent = 'RUNNING · LIT';
-      if (aboutPullText) aboutPullText.textContent = 'Pull Lamp Cord';
+      if (headerLabel)   headerLabel.textContent  = 'Lamp: ON';
+      if (headerDot)     headerDot.className       = 'w-2 h-2 rounded-full bg-emerald-400';
+      if (heroBadge)     heroBadge.textContent     = 'RUNNING · LIT';
+      if (pullText)      pullText.textContent      = 'Close Book';
       if (lampOffBanner) lampOffBanner.classList.add('hidden');
-      if (narrativeStatus) narrativeStatus.textContent = 'Lamp Lit';
-      if (tiktikReadout) tiktikReadout.textContent = 'tik-tik: active';
+      if (narrative)     narrative.textContent     = 'Lamp Lit · Book Open';
+      if (readout)       readout.textContent       = 'book: open';
     } else {
       body.classList.remove('lamp-on');
       body.classList.add('lamp-off');
-      if (headerLabel) headerLabel.textContent = 'Lamp: OFF';
-      if (headerDot) headerDot.className = 'w-2 h-2 rounded-full bg-gray-500';
-      if (heroBadge) heroBadge.textContent = 'STANDBY · DIM';
-      if (aboutPullText) aboutPullText.textContent = 'Turn Lamp ON';
+      if (headerLabel)   headerLabel.textContent  = 'Lamp: OFF';
+      if (headerDot)     headerDot.className       = 'w-2 h-2 rounded-full bg-gray-500';
+      if (heroBadge)     heroBadge.textContent     = 'STANDBY · DIM';
+      if (pullText)      pullText.textContent      = 'Open Book';
       if (lampOffBanner) lampOffBanner.classList.remove('hidden');
-      if (narrativeStatus) narrativeStatus.textContent = 'Standby';
-      if (tiktikReadout) tiktikReadout.textContent = 'tik-tik: quiet';
+      if (narrative)     narrative.textContent     = 'Standby · Closed';
+      if (readout)       readout.textContent       = 'book: closed';
     }
   }
 
   window.OrpaLampController.triggerPull = function (forceState) {
     const ctrl = window.OrpaLampController;
+    if (ctrl.bookAnimating) return;
     ctrl.lampIsOn = typeof forceState === 'boolean' ? forceState : !ctrl.lampIsOn;
-    ctrl.cordPullVelocity = 0.52;
-    ctrl.thoughtSparkBoost = 1.0;
-    if (typeof window.playOrpaSound === 'function') {
-      window.playOrpaSound('lampSwitch');
-    }
+    ctrl.targetBookOpen = ctrl.lampIsOn ? 1 : 0;
     updateLampDOMState();
     if (typeof window.showOrpaToast === 'function') {
       window.showOrpaToast(
         ctrl.lampIsOn
-          ? 'Lamp cord pulled: Portfolio illumination active.'
-          : 'Lamp cord pulled: Standby mode active.'
+          ? 'Lamp on — book opening.'
+          : 'Lamp off — book closing.'
       );
     }
   };
 
   window.OrpaLampController.boostThought = function () {
-    const ctrl = window.OrpaLampController;
-    ctrl.thoughtSparkBoost = 1.5;
-    ctrl.tickCounter++;
-    const formulaEl = document.getElementById('thoughtFormulaText');
-    if (formulaEl) {
-      formulaEl.textContent = THOUGHT_FORMULAS[ctrl.tickCounter % THOUGHT_FORMULAS.length];
-    }
-    if (typeof window.playOrpaSound === 'function') {
-      window.playOrpaSound('tick');
-    }
     if (typeof window.showOrpaToast === 'function') {
-      window.showOrpaToast('Analytical thought pulse triggered.');
+      window.showOrpaToast('Turning the page...');
     }
   };
-
-  setInterval(() => {
-    const ctrl = window.OrpaLampController;
-    if (!ctrl.lampIsOn) return;
-    ctrl.tickCounter++;
-    const leftWord = document.getElementById('tiktikWordLeft');
-    const counterText = document.getElementById('tiktikCounterText');
-    const formulaText = document.getElementById('thoughtFormulaText');
-    if (leftWord) leftWord.textContent = (ctrl.tickCounter % 2 === 0) ? 'TIK... tik...' : 'tik... TIK...';
-    if (counterText) counterText.textContent = `Pulse #${String(ctrl.tickCounter).padStart(2, '0')}`;
-    if (formulaText && ctrl.tickCounter % 4 === 0) {
-      formulaText.textContent = THOUGHT_FORMULAS[(ctrl.tickCounter / 4) % THOUGHT_FORMULAS.length | 0];
-    }
-    if (typeof window.playOrpaSound === 'function') {
-      window.playOrpaSound('tick');
-    }
-  }, 900);
 
   window.initOrpaThreeScene = function () {
     updateLampDOMState();
     const wrapper = document.getElementById('threeCanvasWrapper');
-    const canvas = document.getElementById('aboutThreeCanvas');
+    const canvas  = document.getElementById('aboutThreeCanvas');
     if (!wrapper || !canvas || typeof THREE === 'undefined') return;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, wrapper.clientWidth / wrapper.clientHeight, 0.1, 100);
-    camera.position.set(0.15, 1.45, 6.1);
+    const camera = new THREE.PerspectiveCamera(36, wrapper.clientWidth / wrapper.clientHeight, 0.1, 100);
+    camera.position.set(0, 2.4, 8.2);
+    camera.lookAt(0, 0.1, 0);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.shadowMap.enabled = true;
 
-    const ambientLight = new THREE.AmbientLight(0xd4b483, 1.2);
+    // ── Lights ──────────────────────────────────────────────────────
+    const ambientLight = new THREE.AmbientLight(0xd4b483, 0.45);
     scene.add(ambientLight);
 
-    const rimLight = new THREE.DirectionalLight(0xe6cfa7, 0.9);
-    rimLight.position.set(-3, 4, -2);
+    const lampPointLight = new THREE.PointLight(0xffd58a, 0, 16, 1.8);
+    lampPointLight.castShadow = true;
+    // Will be added to shadeGroup after it is created, so it tracks lamp position
+
+    const rimLight = new THREE.DirectionalLight(0xe6cfa7, 0.28);
+    rimLight.position.set(-5, 4, 2);
     scene.add(rimLight);
 
-    const lampPointLight = new THREE.PointLight(0xe6cfa7, 3.2, 12, 1.5);
-    lampPointLight.position.set(1.1, 2.3, 0.4);
-    scene.add(lampPointLight);
-
-    const diorama = new THREE.Group();
-    scene.add(diorama);
-
-    // Minimalist Champagne-Bronze & Graphite Materials from 1557feec.html
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0x1a1917, roughness: 0.45, metalness: 0.5 });
-    const bronzeMat = new THREE.MeshStandardMaterial({ color: 0xb89463, roughness: 0.3, metalness: 0.8 });
-    const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xd4b483,
-      emissive: 0x8c6239,
-      emissiveIntensity: 0.35,
-      roughness: 0.25,
-      metalness: 0.85
+    // ── Materials ────────────────────────────────────────────────────
+    const darkCoverMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1916, roughness: 0.38, metalness: 0.18
     });
-    const bulbGlowMat = new THREE.MeshStandardMaterial({
-      color: 0xfffbeb,
-      emissive: 0xe6cfa7,
-      emissiveIntensity: 1.8,
-      roughness: 0.1
+    const goldTrimMat = new THREE.MeshStandardMaterial({
+      color: 0xd4b483, roughness: 0.18, metalness: 0.88,
+      emissive: 0x8c6239, emissiveIntensity: 0.22
     });
-    const charSilhouetteMat = new THREE.MeshStandardMaterial({
-      color: 0x292724,
-      roughness: 0.45,
-      metalness: 0.2
+    const pageMat = new THREE.MeshStandardMaterial({
+      color: 0xf5f0e4, roughness: 0.82, metalness: 0.0
+    });
+    const pageEdgeMat = new THREE.MeshStandardMaterial({
+      color: 0xe8e2d0, roughness: 0.88
+    });
+    const deskMat = new THREE.MeshStandardMaterial({
+      color: 0x242018, roughness: 0.62, metalness: 0.08
+    });
+    const lampBaseMat = new THREE.MeshStandardMaterial({
+      color: 0xb89463, roughness: 0.22, metalness: 0.82
+    });
+    const lampShadeMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1814, roughness: 0.42, metalness: 0.12, side: THREE.DoubleSide
+    });
+    const bulbMat = new THREE.MeshStandardMaterial({
+      color: 0xfffcf0, emissive: 0xe6cfa7, emissiveIntensity: 0.2, roughness: 0.08
     });
 
     window.OrpaLampController.updateThemeColors = function (theme) {
       if (theme === 'light') {
-        baseMat.color.setHex(0xd6cfc2);
-        charSilhouetteMat.color.setHex(0x4a453e);
-        ambientLight.intensity = 1.65;
+        deskMat.color.setHex(0xccc5b5);
+        ambientLight.intensity = 0.75;
       } else {
-        baseMat.color.setHex(0x1a1917);
-        charSilhouetteMat.color.setHex(0x292724);
-        ambientLight.intensity = 1.15;
+        deskMat.color.setHex(0x242018);
+        ambientLight.intensity = 0.45;
       }
     };
 
-    const basePlatform = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.65, 0.16, 48), baseMat);
-    basePlatform.position.y = -1.2;
-    diorama.add(basePlatform);
+    // ── Desk surface ─────────────────────────────────────────────────
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(10, 0.14, 5), deskMat);
+    desk.position.y = -1.38;
+    desk.receiveShadow = true;
+    scene.add(desk);
 
-    const baseRing = new THREE.Mesh(new THREE.TorusGeometry(2.58, 0.025, 16, 64), champagneGoldMat);
-    baseRing.rotation.x = Math.PI / 2;
-    baseRing.position.y = -1.12;
-    diorama.add(baseRing);
+    // Desk front edge highlight (bronze strip)
+    const deskEdge = new THREE.Mesh(new THREE.BoxGeometry(10, 0.022, 0.022), goldTrimMat);
+    deskEdge.position.set(0, -1.31, 2.5);
+    scene.add(deskEdge);
 
-    const deskTop = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.07, 0.9), baseMat);
-    deskTop.position.set(-0.2, -0.25, 0.5);
-    diorama.add(deskTop);
+    // ── Book ─────────────────────────────────────────────────────────
+    const bookGroup = new THREE.Group();
+    bookGroup.position.set(-0.7, -0.74, 0.1);
+    scene.add(bookGroup);
 
-    const girlGroup = new THREE.Group();
-    girlGroup.position.set(-0.25, -0.15, -0.05);
-    diorama.add(girlGroup);
+    const BW = 1.65, BH = 2.25, CT = 0.062, PT = 0.32;
+    const SPINE_X = -BW / 2;
 
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.35, 1.0, 24), charSilhouetteMat);
-    torso.position.y = 0.25;
-    girlGroup.add(torso);
+    // Back cover
+    const backCover = new THREE.Mesh(new THREE.BoxGeometry(BW, BH, CT), darkCoverMat);
+    backCover.position.set(0, 0, -(PT / 2) - CT / 2);
+    backCover.castShadow = true;
+    bookGroup.add(backCover);
 
-    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.03, 12, 32), champagneGoldMat);
-    collar.rotation.x = Math.PI / 2;
-    collar.position.y = 0.72;
-    girlGroup.add(collar);
+    // Spine strip
+    const spine = new THREE.Mesh(new THREE.BoxGeometry(0.058, BH, PT + CT * 2 + 0.01), darkCoverMat);
+    spine.position.set(SPINE_X - 0.029, 0, 0);
+    bookGroup.add(spine);
 
-    const headGroup = new THREE.Group();
-    headGroup.position.set(0, 1.15, 0.05);
-    girlGroup.add(headGroup);
+    // Spine gold bands
+    [-BH / 2 + 0.07, -BH / 2 + 0.24, BH / 2 - 0.07, BH / 2 - 0.24].forEach((yp) => {
+      const band = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.026, PT + CT * 2 + 0.015), goldTrimMat);
+      band.position.set(SPINE_X - 0.031, yp, 0);
+      bookGroup.add(band);
+    });
 
-    const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), charSilhouetteMat);
-    headGroup.add(headMesh);
+    // Page block (cream)
+    const pageBlock = new THREE.Mesh(new THREE.BoxGeometry(BW - 0.015, BH - 0.04, PT), pageMat);
+    pageBlock.position.set(0.007, 0, 0);
+    pageBlock.castShadow = true;
+    bookGroup.add(pageBlock);
 
-    const hairBun = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 20), baseMat);
-    hairBun.position.set(-0.08, 0.25, -0.25);
-    headGroup.add(hairBun);
+    // Page-edge layering lines (top and right edges visible when open)
+    for (let i = 0; i < 10; i++) {
+      const lineZ = -(PT / 2) + (PT / 10) * i + PT / 20;
+      const eline = new THREE.Mesh(new THREE.BoxGeometry(BW - 0.02, 0.006, 0.003), pageEdgeMat);
+      eline.position.set(0.007, BH / 2 - 0.018, lineZ);
+      bookGroup.add(eline);
+    }
 
-    const leftLens = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.011, 10, 24), champagneGoldMat);
-    leftLens.position.set(-0.095, 0.02, 0.28);
-    headGroup.add(leftLens);
+    // ── Front cover (pivots from spine edge) ─────────────────────────
+    const frontPivot = new THREE.Group();
+    frontPivot.position.set(SPINE_X, 0, PT / 2 + CT / 2);
+    bookGroup.add(frontPivot);
 
-    const rightLens = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.011, 10, 24), champagneGoldMat);
-    rightLens.position.set(0.095, 0.02, 0.28);
-    headGroup.add(rightLens);
+    const frontCover = new THREE.Mesh(new THREE.BoxGeometry(BW, BH, CT), darkCoverMat);
+    frontCover.position.set(BW / 2, 0, 0);
+    frontCover.castShadow = true;
+    frontPivot.add(frontCover);
 
-    const rightArmGroup = new THREE.Group();
-    rightArmGroup.position.set(-0.3, 0.66, 0.05);
-    girlGroup.add(rightArmGroup);
+    // Gold border on front cover
+    const borderInset = 0.07;
+    [
+      { x: BW / 2, y: BH / 2 - borderInset, w: BW - borderInset * 2, h: 0.018 },
+      { x: BW / 2, y: -(BH / 2 - borderInset), w: BW - borderInset * 2, h: 0.018 },
+    ].forEach((tp) => {
+      const t = new THREE.Mesh(new THREE.BoxGeometry(tp.w, tp.h, CT + 0.004), goldTrimMat);
+      t.position.set(tp.x, tp.y, 0);
+      frontPivot.add(t);
+    });
+    const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(0.018, BH - borderInset * 2, CT + 0.004), goldTrimMat);
+    leftBorder.position.set(borderInset, 0, 0);
+    frontPivot.add(leftBorder);
+    const rightBorder = leftBorder.clone();
+    rightBorder.position.set(BW - borderInset, 0, 0);
+    frontPivot.add(rightBorder);
 
-    const rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.5, 16), charSilhouetteMat);
-    rightForearm.position.set(0.05, 0.02, 0.32);
-    rightForearm.rotation.z = 0.55;
-    rightForearm.rotation.x = -0.5;
-    rightArmGroup.add(rightForearm);
+    // Small decorative emblem on front cover center
+    const emblem = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.018, 10, 32), goldTrimMat);
+    emblem.position.set(BW / 2, 0.15, CT + 0.004);
+    frontPivot.add(emblem);
 
-    const thinkingHand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), champagneGoldMat);
-    thinkingHand.position.set(0.17, 0.23, 0.25);
-    rightArmGroup.add(thinkingHand);
+    const emblemDot = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), goldTrimMat);
+    emblemDot.position.set(BW / 2, 0.15, CT + 0.015);
+    frontPivot.add(emblemDot);
 
-    const leftArmGroup = new THREE.Group();
-    leftArmGroup.position.set(0.3, 0.66, 0.05);
-    girlGroup.add(leftArmGroup);
-
-    const leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.06, 0.62, 16), charSilhouetteMat);
-    leftUpperArm.position.set(0.3, 0.08, 0.1);
-    leftUpperArm.rotation.z = -1.15;
-    leftArmGroup.add(leftUpperArm);
-
-    const leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.6, 16), charSilhouetteMat);
-    leftForearm.position.set(0.8, 0.22, 0.2);
-    leftForearm.rotation.z = -1.35;
-    leftArmGroup.add(leftForearm);
-
-    const pullingHand = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), champagneGoldMat);
-    pullingHand.position.set(1.1, 0.27, 0.24);
-    leftArmGroup.add(pullingHand);
-
-    const tiktikGroup = new THREE.Group();
-    tiktikGroup.position.set(-0.65, 1.35, 0.1);
-    girlGroup.add(tiktikGroup);
-
-    const clockRing = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.02, 14, 36), champagneGoldMat);
-    tiktikGroup.add(clockRing);
-
-    const clockSecondHand = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.2, 0.02), bulbGlowMat);
-    clockSecondHand.position.y = 0.07;
-    const secondPivot = new THREE.Group();
-    secondPivot.add(clockSecondHand);
-    tiktikGroup.add(secondPivot);
-
+    // ── Table Lamp ───────────────────────────────────────────────────
     const lampGroup = new THREE.Group();
-    lampGroup.position.set(0.85, 0, 0.2);
-    diorama.add(lampGroup);
+    lampGroup.position.set(2.15, -1.31, 0.5);
+    scene.add(lampGroup);
 
-    const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.055, 3.8, 20), bronzeMat);
-    lampPole.position.set(0.62, 0.62, -0.22);
-    lampGroup.add(lampPole);
+    // Base disc
+    const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.09, 36), lampBaseMat);
+    lampBase.position.y = 0.045;
+    lampBase.castShadow = true;
+    lampGroup.add(lampBase);
 
-    const lampTopArm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.82, 16), bronzeMat);
-    lampTopArm.position.set(0.28, 2.48, -0.1);
-    lampTopArm.rotation.z = Math.PI / 2;
-    lampGroup.add(lampTopArm);
+    // Base weight ring
+    const weightRing = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.2, 36), lampBaseMat);
+    weightRing.position.y = 0.19;
+    lampGroup.add(weightRing);
 
-    const lampShade = new THREE.Mesh(
-      new THREE.ConeGeometry(0.48, 0.44, 32, 1, true),
-      new THREE.MeshStandardMaterial({ color: 0x22201d, side: THREE.DoubleSide, roughness: 0.35, metalness: 0.7 })
-    );
-    lampShade.position.set(0, 2.2, 0);
-    lampGroup.add(lampShade);
+    // Neck pole
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.04, 3.1, 20), lampBaseMat);
+    pole.position.y = 1.64;
+    pole.castShadow = true;
+    lampGroup.add(pole);
 
-    const lampBulb = new THREE.Mesh(new THREE.SphereGeometry(0.15, 24, 24), bulbGlowMat);
-    lampBulb.position.set(0, 2.04, 0);
-    lampGroup.add(lampBulb);
+    // Arm extending toward book (negative X = toward book on the left)
+    const armGroup = new THREE.Group();
+    armGroup.position.set(0, 3.2, 0);
+    lampGroup.add(armGroup);
 
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.35, 16), lampBaseMat);
+    arm.rotation.z = Math.PI / 2;
+    arm.position.x = -0.675;
+    armGroup.add(arm);
+
+    // Shade + bulb group at arm end
+    const shadeGroup = new THREE.Group();
+    shadeGroup.position.set(-1.35, 0, 0);
+    armGroup.add(shadeGroup);
+
+    const shade = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.56, 36, 1, true), lampShadeMat);
+    shade.position.y = -0.3;
+    shadeGroup.add(shade);
+
+    const shadeRim = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.018, 12, 52), lampBaseMat);
+    shadeRim.position.y = -0.57;
+    shadeGroup.add(shadeRim);
+
+    const shadeTopCap = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.05, 24), lampBaseMat);
+    shadeTopCap.position.y = 0.025;
+    shadeGroup.add(shadeTopCap);
+
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 22, 22), bulbMat);
+    bulb.position.y = -0.14;
+    shadeGroup.add(bulb);
+
+    // Filament inside bulb
+    const filamentMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, emissive: 0xffcc44, emissiveIntensity: 0.5 });
+    const filament = new THREE.Mesh(new THREE.TorusGeometry(0.04, 0.006, 8, 16), filamentMat);
+    filament.position.y = -0.14;
+    filament.rotation.x = Math.PI / 2;
+    shadeGroup.add(filament);
+
+    // Light cone (subtle visible glow under shade)
     const lightConeMat = new THREE.MeshBasicMaterial({
-      color: 0xe6cfa7,
-      transparent: true,
-      opacity: 0.12,
-      side: THREE.DoubleSide,
-      depthWrite: false
+      color: 0xffd58a, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false
     });
-    const lightCone = new THREE.Mesh(new THREE.ConeGeometry(1.45, 3.0, 32, 1, true), lightConeMat);
-    lightCone.position.set(0, 0.45, 0);
-    lampGroup.add(lightCone);
+    const lightCone = new THREE.Mesh(new THREE.ConeGeometry(1.2, 2.8, 36, 1, true), lightConeMat);
+    lightCone.position.y = -1.6;
+    shadeGroup.add(lightCone);
 
-    const cordGroup = new THREE.Group();
-    cordGroup.position.set(0, 1.96, 0);
-    lampGroup.add(cordGroup);
+    // Position point light at bulb location, parented to shadeGroup for correct rotation tracking
+    lampPointLight.position.set(0, -0.14, 0);
+    shadeGroup.add(lampPointLight);
 
-    const cordLine = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.3, 12), champagneGoldMat);
-    cordLine.position.y = -0.65;
-    cordGroup.add(cordLine);
+    // ON/OFF toggle knob on pole
+    const switchMat = new THREE.MeshStandardMaterial({ color: 0xd4b483, roughness: 0.28, metalness: 0.75 });
+    const switchKnob = new THREE.Mesh(new THREE.SphereGeometry(0.07, 18, 18), switchMat);
+    switchKnob.position.set(0.068, 1.8, 0);
+    lampGroup.add(switchKnob);
 
-    const cordHandle = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.16, 16), bulbGlowMat);
-    cordHandle.position.y = -1.3;
-    cordGroup.add(cordHandle);
+    // Switch plate
+    const switchPlate = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.12, 0.03), switchMat);
+    switchPlate.position.set(0.062, 1.8, 0);
+    lampGroup.add(switchPlate);
 
-    let isDragging = false;
-    let pointerDownX = 0;
-    let pointerDownY = 0;
-    let targetRotY = -0.16;
+    // ── Book page overlay element ────────────────────────────────────
+    const bookOverlay = document.getElementById('bookPageOverlay');
 
-    wrapper.addEventListener('pointerdown', (e) => {
-      isDragging = true;
-      pointerDownX = e.clientX;
-      pointerDownY = e.clientY;
-    });
+    // ── Drag-to-rotate ───────────────────────────────────────────────
+    let isDragging = false, startX = 0;
+    let targetRotY = 0.1;
+
+    wrapper.addEventListener('pointerdown', (e) => { isDragging = true; startX = e.clientX; });
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      targetRotY += (e.clientX - pointerDownX) * 0.005;
-      pointerDownX = e.clientX;
+      targetRotY += (e.clientX - startX) * 0.0038;
+      startX = e.clientX;
     });
-    window.addEventListener('pointerup', (e) => {
-      if (!isDragging) return;
-      isDragging = false;
-      if (Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY) < 6 && e.target === canvas) {
-        window.OrpaLampController.triggerPull();
-      }
-    });
+    window.addEventListener('pointerup', () => { isDragging = false; });
 
     const resetBtn = document.getElementById('resetCameraBtn');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        targetRotY = -0.16;
-        if (typeof window.showOrpaToast === 'function') window.showOrpaToast('3D View Reset');
+        targetRotY = 0.1;
+        if (typeof window.showOrpaToast === 'function') window.showOrpaToast('View reset.');
       });
     }
 
     window.addEventListener('resize', () => {
-      if (!wrapper) return;
       camera.aspect = wrapper.clientWidth / wrapper.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
@@ -351,47 +339,64 @@
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     window.OrpaLampController.updateThemeColors(currentTheme);
 
+    // ── Animation loop ───────────────────────────────────────────────
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
       const ctrl = window.OrpaLampController;
 
-      diorama.rotation.y += (targetRotY - diorama.rotation.y) * 0.08;
+      // Gentle scene rotation following drag
+      scene.rotation.y += (targetRotY - scene.rotation.y) * 0.055;
 
-      ctrl.cordExtension += ctrl.cordPullVelocity;
-      ctrl.cordPullVelocity -= ctrl.cordExtension * 0.18;
-      ctrl.cordPullVelocity *= 0.78;
-      if (Math.abs(ctrl.cordExtension) < 0.001 && Math.abs(ctrl.cordPullVelocity) < 0.001) {
-        ctrl.cordExtension = 0;
-        ctrl.cordPullVelocity = 0;
+      // Book open / close animation
+      const prev = ctrl.bookOpenAmount;
+      ctrl.bookOpenAmount += (ctrl.targetBookOpen - ctrl.bookOpenAmount) * 0.048;
+      ctrl.bookAnimating = Math.abs(ctrl.bookOpenAmount - ctrl.targetBookOpen) > 0.018;
+
+      // Front cover swings open: 0 = closed, ~110°
+      frontPivot.rotation.y = -ctrl.bookOpenAmount * Math.PI * 0.61;
+
+      // Subtle book float when open
+      bookGroup.position.y = -0.74 + Math.sin(t * 0.75) * 0.006 * ctrl.bookOpenAmount;
+
+      // Lamp light intensity fades in / out
+      const targetIntensity = ctrl.lampIsOn ? 4.2 : 0;
+      lampPointLight.intensity += (targetIntensity - lampPointLight.intensity) * 0.09;
+
+      // Bulb glow
+      bulbMat.emissiveIntensity = ctrl.lampIsOn
+        ? 1.35 + Math.sin(t * 3.8) * 0.045
+        : 0.04;
+      filamentMat.emissiveIntensity = ctrl.lampIsOn ? 1.2 : 0.05;
+
+      // Light cone opacity
+      lightConeMat.opacity = ctrl.lampIsOn ? 0.08 + Math.sin(t * 2.6) * 0.01 : 0;
+
+      // Book page overlay — fade in as cover opens past midpoint
+      if (bookOverlay) {
+        const openFraction = ctrl.bookOpenAmount;
+        if (openFraction > 0.5) {
+          const fadeIn = (openFraction - 0.5) / 0.5;
+          bookOverlay.style.opacity = fadeIn.toFixed(3);
+          bookOverlay.classList.remove('hidden');
+        } else {
+          bookOverlay.style.opacity = '0';
+          if (openFraction < 0.08) bookOverlay.classList.add('hidden');
+        }
       }
-
-      cordGroup.position.y = 1.96 - Math.max(0, ctrl.cordExtension * 0.45);
-      leftArmGroup.rotation.z = -Math.max(0, ctrl.cordExtension * 0.42);
-
-      headGroup.rotation.z = Math.sin(t * 1.5) * 0.06 + 0.04;
-      headGroup.rotation.y = Math.cos(t * 1.1) * 0.08 + 0.1;
-
-      const discreteHalfSec = Math.floor(t * 2.2);
-      secondPivot.rotation.z = -discreteHalfSec * (Math.PI / 6);
-      tiktikGroup.position.y = 1.35 + Math.sin(t * 2.2) * 0.025;
-
-      if (ctrl.thoughtSparkBoost > 0.01) ctrl.thoughtSparkBoost *= 0.94;
-
-      const targetLight = ctrl.lampIsOn ? 3.2 : 0.15;
-      lampPointLight.intensity += (targetLight - lampPointLight.intensity) * 0.12;
-      bulbGlowMat.emissiveIntensity = ctrl.lampIsOn ? 1.9 : 0.15;
-      lightConeMat.opacity = ctrl.lampIsOn ? (0.12 + Math.sin(t * 3) * 0.015) : 0.01;
 
       renderer.render(scene, camera);
     }
 
     animate();
 
+    // Auto-open book shortly after page load
     setTimeout(() => {
-      window.OrpaLampController.cordPullVelocity = 0.45;
-      window.OrpaLampController.thoughtSparkBoost = 1.0;
-    }, 750);
+      const ctrl = window.OrpaLampController;
+      ctrl.lampIsOn = true;
+      ctrl.targetBookOpen = 1;
+      updateLampDOMState();
+    }, 850);
   };
 })();

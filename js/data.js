@@ -14,7 +14,7 @@ const portfolioData = {
     "tagline": "I build, learn and explore.",
     "intro": "I am a Computer Science and Engineering student at American International University-Bangladesh (AIUB). I enjoy mathematics, exploring research problems and building technology projects. I am preparing to begin my professional journey in the technology industry.",
     "brandQuote": "A curious CSE student with a passion for mathematics, research, and building technology beyond the ordinary.",
-    "profileImage": "assets/images/profile.jpg",
+    "profileImage": "assets/images/profile.jpeg",
     "academicStanding": "Undergraduate student, 10th semester as of October 2026",
     "publishAcademicMetrics": false,
     "reportedCgpa": "3.72 (Reported Oct 2025 — pending 10th-semester verification)",
@@ -414,14 +414,14 @@ const portfolioData = {
     {
       "id": "soc-github",
       "platform": "GitHub",
-      "url": "",
-      "label": "Add actual GitHub URL in data.js or Admin"
+      "url": "https://github.com/IsratOrpa1360",
+      "label": "IsratOrpa1360"
     },
     {
       "id": "soc-linkedin",
       "platform": "LinkedIn",
       "url": "",
-      "label": "Add actual LinkedIn URL in data.js or Admin"
+      "label": ""
     }
   ],
   "contact": {

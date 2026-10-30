@@ -269,7 +269,7 @@
 
     const profileImg = document.getElementById('aboutProfileImage');
     if (profileImg) {
-      profileImg.src = isSafeHref(p.profileImage) ? p.profileImage : 'assets/images/profile.jpg';
+      profileImg.src = isSafeHref(p.profileImage) ? p.profileImage : 'assets/images/profile.jpeg';
       profileImg.alt = `${p.name || 'Isratul Ibnat Orpa'} profile portrait`;
     }
 
@@ -283,11 +283,13 @@
     const fStat = document.getElementById('focusStatusText');
     if (fStat) fStat.textContent = focus.availability || 'Open to internship opportunities';
 
-    // Hero Social Links
+    // Hero Social Links — only show entries with a populated URL
     const heroSocialRow = document.getElementById('heroSocialLinksContainer');
     if (heroSocialRow) {
       heroSocialRow.textContent = '';
-      const socials = Array.isArray(d.socialLinks) ? d.socialLinks : [];
+      const socials = (Array.isArray(d.socialLinks) ? d.socialLinks : []).filter(
+        (s) => s.url && isSafeHref(s.url)
+      );
       socials.forEach((soc, idx) => {
         if (idx > 0) {
           heroSocialRow.appendChild(el('span', 'text-mute', '|'));
